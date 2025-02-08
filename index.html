@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医案练习系统</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .card { background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 10px; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; }
+        .hidden { display: none; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>当前医案</h2>
+        <div id="case-content"></div>
+        <button onclick="toggleAnswer()">显示答案</button>
+        <div id="answer-content" class="hidden"></div>
+    </div>
+
+    <div class="card">
+        <h2>添加新医案</h2>
+        <form onsubmit="submitCase(event)">
+            <textarea id="case-input" placeholder="输入医案内容..." required></textarea>
+            <textarea id="answer-input" placeholder="输入答案..." required></textarea>
+            <button type="submit">提交医案</button>
+        </form>
+    </div>
+
+    <script>
+        // 加载随机医案
+        function loadCase() {
+            fetch('/api/cases/random')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('case-content').textContent = data.case_text;
+                    document.getElementById('answer-content').textContent = data.answer_text;
+                });
+        }
+
+        // 切换答案显示
+        function toggleAnswer() {
+            document.getElementById('answer-content').classList.toggle('hidden');
+        }
+
+        // 提交新医案
+        function submitCase(e) {
+            e.preventDefault();
+            const caseText = document.getElementById('case-input').value;
+            const answerText = document.getElementById('answer-input').value;
+
+            fetch('/api/cases', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ case_text: caseText, answer_text: answerText })
+            })
+            .then(() => {
+                alert('提交成功！');
+                document.getElementById('case-input').value = '';
+                document.getElementById('answer-input').value = '';
+                loadCase(); // 刷新显示新医案
+            });
+        }
+
+        // 初始化加载
+        loadCase();
+    </script>
+</body>
+</html>
