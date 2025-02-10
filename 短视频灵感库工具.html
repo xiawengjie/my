@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短视频灵感库</title>
+    <style>
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --background: #F5F5F5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 标题样式 */
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin: 30px 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 输入表单 */
+        .idea-form {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: grid;
+            gap: 10px;
+        }
+
+        input, textarea, select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .tag-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag-item {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tag-item.selected {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .priority-stars {
+            display: flex;
+            gap: 5px;
+        }
+
+        .star {
+            font-size: 24px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .star.active {
+            color: #FFD700;
+        }
+
+        #saveBtn {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        #saveBtn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 灵感卡片 */
+        .ideas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .idea-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .idea-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-tag {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            padding: 6px 15px;
+            border-radius: 15px;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .card-content {
+            margin: 15px 0;
+        }
+
+        .card-priority {
+            display: flex;
+            gap: 3px;
+        }
+
+        .delete-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #ff4444;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .idea-card:hover .delete-btn {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📹 短视频灵感库</h1>
+        
+        <!-- 输入表单 -->
+        <div class="idea-form">
+            <div class="form-group">
+                <input type="text" id="ideaTitle" placeholder="灵感标题（必填）">
+            </div>
+            <div class="form-group">
+                <textarea id="ideaContent" placeholder="详细内容..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>分类标签：</label>
+                <div class="tag-selector" id="tagSelector">
+                    <div class="tag-item" data-tag="搞笑">😂 搞笑</div>
+                    <div class="tag-item" data-tag="教程">📚 教程</div>
+                    <div class="tag-item" data-tag="生活">🏠 生活</div>
+                    <div class="tag-item" data-tag="美食">🍔 美食</div>
+                    <div class="tag-item" data-tag="科技">💻 科技</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>优先级：</label>
+                <div class="priority-stars" id="priorityStars">
+                    <span class="star">☆</span>
+                    <span class="star">☆</span>
+                    <span class="star">☆</span>
+                    <span class="star">☆</span>
+                    <span class="star">☆</span>
+                </div>
+            </div>
+            <button id="saveBtn">保存灵感 💡</button>
+        </div>
+
+        <!-- 灵感展示 -->
+        <div class="ideas-grid" id="ideasGrid"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 元素引用
+            const tagItems = document.querySelectorAll('.tag-item');
+            const stars = document.querySelectorAll('.star');
+            const form = document.querySelector('.idea-form');
+            const ideasGrid = document.getElementById('ideasGrid');
+            
+            let selectedTag = '搞笑';
+            let selectedPriority = 3;
+
+            // 标签选择
+            tagItems.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tagItems.forEach(t => t.classList.remove('selected'));
+                    tag.classList.add('selected');
+                    selectedTag = tag.dataset.tag;
+                });
+            });
+
+            // 优先级选择
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    stars.forEach((s, i) => {
+                        s.textContent = i <= index ? '★' : '☆';
+                        s.classList.toggle('active', i <= index);
+                    });
+                    selectedPriority = index + 1;
+                });
+            });
+
+            // 保存灵感
+            document.getElementById('saveBtn').addEventListener('click', saveIdea);
+
+            // 初始化加载
+            loadIdeas();
+
+           function saveIdea() {
+                const title = document.getElementById('ideaTitle').value.trim();
+                const content = document.getElementById('ideaContent').value.trim();
+                
+                if (!title) {
+                    alert("请填写标题！");
+                    return;
+                }
+
+                const ideaData = {
+                    title,
+                    content,
+                    tag: selectedTag,
+                    priority: selectedPriority,
+                    timestamp: new Date().getTime()
+                };
+
+                // 保存到本地存储
+                const existingIdeas = JSON.parse(localStorage.getItem('videoIdeas')) || [];
+                existingIdeas.push(ideaData);
+                localStorage.setItem('videoIdeas', JSON.stringify(existingIdeas));
+
+                // 清空表单
+                form.reset();
+                stars.forEach(star => {
+                    star.textContent = '☆';
+                    star.classList.remove('active');
+                });
+                tagItems[0].click(); // 重置默认标签
+
+                // 刷新展示列表
+                loadIdeas();
+            }
+
+            // 加载灵感
+            function loadIdeas() {
+                ideasGrid.innerHTML = '';
+                const ideas = JSON.parse(localStorage.getItem('videoIdeas')) || [];
+                
+                ideas.sort((a, b) => b.priority - a.priority).forEach(idea => {
+                    const card = document.createElement('div');
+                    card.className = 'idea-card';
+                    
+                    // 根据标签设置颜色
+                    const tagColors = {
+                        '搞笑': '#FF6B6B',
+                        '教程': '#4ECDC4',
+                        '生活': '#A5D8A2',
+                        '美食': '#FF922B',
+                        '科技': '#748FFC'
+                    };
+
+                    card.innerHTML = `
+                        <div class="card-tag" style="background: ${tagColors[idea.tag]}">
+                            ${idea.tag}
+                        </div>
+                        <h3>${idea.title}</h3>
+                        <div class="card-content">${idea.content.replace(/\n/g, '<br>')}</div>
+                        <div class="card-priority">
+                            ${'★'.repeat(idea.priority)}${'☆'.repeat(5 - idea.priority)}
+                        </div>
+                        <div class="delete-btn">🗑️</div>
+                    `;
+
+                    // 删除功能
+                    card.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const filtered = ideas.filter(item => item.timestamp !== idea.timestamp);
+                        localStorage.setItem('videoIdeas', JSON.stringify(filtered));
+                        card.remove();
+                    });
+
+                    ideasGrid.appendChild(card);
+                });
+            }
+
+            // 初始化默认选择
+            tagItems[0].click();
+            stars[2].click(); // 默认3星
+        });
+    </script>
+</body>
+</html>
