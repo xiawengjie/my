@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中医问诊单</title>
+    <style>
+        body {font-family: Arial, sans-serif; padding: 15px; max-width: 600px; margin: 0 auto;}
+        .form-group {margin-bottom: 15px;}
+        label {display: block; margin-bottom: 5px; font-weight: bold;}
+        input, textarea {width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;}
+        button {background: #4CAF50; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer;}
+        button:hover {background: #45a049;}
+    </style>
+</head>
+<body>
+    <h2>中医问诊单</h2>
+    <form id="consultForm">
+        <div class="form-group">
+            <label>姓名：</label>
+            <input type="text" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label>年龄：</label>
+            <input type="number" name="age" required>
+        </div>
+
+        <div class="form-group">
+            <label>性别：</label>
+            <input type="text" name="gender" required>
+        </div>
+
+        <div class="form-group">
+            <label>一、主诉:现在最不舒服的情况是什么？在什么情况下，主诉会加重？什么情况下会减轻？：</label>
+            <textarea name="chief_complaint" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>二、问寒热。有无怕冷，怕风，还是怕热，有无发热。（请说明是身上怕冷还是手脚怕冷）：</label>
+            <input type="text" name="cold_heat">
+        </div>
+
+        <div class="form-group">
+            <label>三问汗。出汗多，还是少，还是不出汗，还是汗量正常？全身出汗还是局部出汗？出汗后怕风吹吗？进食时容易出汗吗？出汗后凉还是热吗？稍微动就出汗吗？吃热食的就出汗吗？晚上睡觉出汗否？干活跟多或者激烈运动才出汗？：</label>
+            <input type="text" name="sweat">
+        </div>
+
+        <div class="form-group">
+            <label>四问头身。头有没有什么不舒服，晕，还是痛，哪里痛，晕是旋转还是仅仅是眼睛发黑，有没有眼花？有没有痘痘？红吗？个头大还是小？哪个部位？有没有脓头？有没有刷牙流血？有没有耳鸣？有没有鼻涕鼻塞鼻血？鼻子干燥吗？口臭吗，口苦吗，口干吗，口渴吗，口黏吗？饮水量多少？喜欢饮用冷水还是温水还是热水？身上有没有哪里痛，肌肉有没有酸痛，手脚关节肩膀脖子腰？有没有哪里生疮？有没有皮肤过敏，有没有麻木，有没有手脚冷或者热，还是温度正常？手脚心发烫否？走路脚后跟疼吗？睡觉时身上或者腿肌肉酸烦吗，觉得不知道要怎么摆放吗？下肢有没有肿，下肢皮肤干燥或者脱皮吗？按压凹陷不能马上恢复吗？小腿后面皮肤温度凉还是热还是温度正常？有没有袜子痕？：</label>
+            <input type="text" name="head_body">
+        </div>
+
+        <div class="form-group">
+            <label>五、问二便。大便情况，质量成条还是软？还是烂？还是稀水？还是前干后稀烂？还是硬如羊粪或者便秘不拉大便？次数每天几次还是几天一次？小便次数多少，量多还是少，颜色清还是白还是深黄还是淡黄还是红色？有没有半夜起来小便？夜尿几次？有无尿滴沥尿等待小便时断时续？小便疼痛或者吗？小便灼热吗？：</label>
+            <input type="text" name="excretion">
+        </div>
+
+        <div class="form-group">
+            <label>六、问胸腹。胸口有没有不舒服？肚子有没有不舒服？肚子发凉怕风吗？睡觉一定要盖肚子吗？胃胀吗，痛吗，嗳气泛酸吗？肚子有没有肠子咕噜咕噜叫？：</label>
+            <input type="text" name="diet">
+        </div>
+
+        <div class="form-group">
+            <label>七、问饮食。喝水多还是少，一天饮水大约几瓶500ML矿泉水的量，水温如何要求，喜欢喝水还是讨厌？胃口饭量如何？有没有口干口渴口苦的情况：</label>
+            <input type="text" name="chest_abdomen">
+        </div>
+
+        <div class="form-group">
+            <label>八、问聋（耳朵）。耳聋耳鸣吗，听力如何？：</label>
+            <input type="text" name="ears">
+        </div>
+
+        <div class="form-group">
+            <label>九、问睡眠记忆力:睡眠如何，入睡如何，做梦多少，记忆力如何？平时容易上火吗？平时体质容易拉肚子吗？平时容易感冒吗？身体乏力吗？自己按一下小腿，是否有凹陷水肿？：</label>
+            <input type="text" name="thirst">
+        </div>
+
+        <div class="form-group">
+            <label>十、旧病及诱因（既往病史/发病原因）：</label>
+            <textarea name="history" rows="2"></textarea>
+        </div>
+        <button type="button" onclick="exportToTxt()">导出问诊单</button>
+    </form>
+    <script>
+    function exportToTxt() {
+        const formData = new FormData(document.getElementById('consultForm'));
+        let txtContent = `中医问诊记录\n生成时间：${new Date().toLocaleString()}\n\n`;
+
+        // 基础信息保持原样
+        txtContent += `姓名：${formData.get('name')}\n`;
+        txtContent += `年龄：${formData.get('age')}\n`;
+        txtContent += `性别：${formData.get('gender')}\n\n`;
+
+        // 十问内容简化处理
+        const questionLabels = {
+            chief_complaint: '主诉',
+            cold_heat: '寒热',
+            sweat: '出汗',
+            head_body: '头身',
+            excretion: '二便',
+            diet: '胸腹',
+            chest_abdomen: '饮食情况',
+            ears: '耳聋',
+            thirst: '睡眠情况',
+            history: '旧病及疾病诱因'
+        };
+
+        // 按顺序处理十问内容
+        const questionOrder = [
+            'chief_complaint', 'cold_heat', 'sweat', 'head_body',
+            'excretion', 'diet', 'chest_abdomen', 'ears', 'thirst', 'history'
+        ];
+
+        questionOrder.forEach(key => {
+            const value = formData.get(key);
+            if (value) {
+                txtContent += `${questionLabels[key]}：${value}\n`;
+            }
+        });
+
+        // 创建并下载文件
+        const blob = new Blob([txtContent], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `问诊记录_${formData.get('name')}.txt`;
+        link.click();
+      }
+   </script>
+</body>
+</html>
+
+
+
