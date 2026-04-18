@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>快递查询 + 物流跟踪</title>
+<title>快递查询</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
 body{background:#f5f7fa;padding:25px;max-width:500px;margin:0 auto}
@@ -24,7 +24,7 @@ button{width:100%;padding:15px;color:#fff;border:none;border-radius:14px;font-si
 </head>
 <body>
 <div class="main">
-  <h2 class="title">📦 快递查询 + 物流跟踪</h2>
+  <h2 class="title">📦 快递查询</h2>
   
   <div class="input-box">
     <label>输入收件人手机号</label>
@@ -32,7 +32,7 @@ button{width:100%;padding:15px;color:#fff;border:none;border-radius:14px;font-si
   </div>
 
   <button class="btn-blue" id="search">查询快递单号</button>
-  <button class="btn-green" id="checkWuliu" style="display:none">查看中通物流信息</button>
+  <button class="btn-green" id="gotoMini" style="display:none">一键查中通物流（小程序）</button>
 
   <div class="result" id="result">
     <div class="line">手机号：<span id="rtel"></span></div>
@@ -47,7 +47,7 @@ button{width:100%;padding:15px;color:#fff;border:none;border-radius:14px;font-si
 <script>
 const phone = document.getElementById('phone');
 const search = document.getElementById('search');
-const checkWuliu = document.getElementById('checkWuliu');
+const gotoMini = document.getElementById('gotoMini');
 const result = document.getElementById('result');
 const nope = document.getElementById('nope');
 let currentNo = '';
@@ -56,7 +56,7 @@ search.onclick = () => {
   const tel = phone.value.trim();
   result.classList.remove('show');
   nope.classList.remove('show');
-  checkWuliu.style.display = 'none';
+  gotoMini.style.display = 'none';
   
   if (DATA[tel]) {
     document.getElementById('rtel').innerText = tel;
@@ -64,16 +64,24 @@ search.onclick = () => {
     document.getElementById('rno').innerText = DATA[tel].number;
     currentNo = DATA[tel].number;
     result.classList.add('show');
-    checkWuliu.style.display = 'block';
+    gotoMini.style.display = 'block';
   } else {
     nope.classList.add('show');
   }
 };
 
-// 一键跳中通官网查物流
-checkWuliu.onclick = () => {
+// 一键跳微信中通小程序（最稳方案）
+gotoMini.onclick = () => {
   if (!currentNo) return alert('请先查询快递单号');
-  window.open(`https://www.zto.com/result?billNum=${currentNo}`, '_blank');
+  
+  // 微信官方路径：打开中通快递小程序 → 自动查询单号
+  location.href = `weixin://dl/business/?appid=wx7a6d9b606e0feced&path=pages/query/query?billno=${currentNo}`;
+  
+  // 如果上面不跳，用这个备用（提示用户去小程序粘贴单号）
+  setTimeout(()=>{
+    alert('已为您复制单号，请打开微信→搜索「中通快递」小程序→粘贴查询：\n' + currentNo);
+    navigator.clipboard.writeText(currentNo);
+  },800);
 };
 </script>
 </body>
