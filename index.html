@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>快递查询</title>
+<title>快递查询 + 物流跟踪</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
 body{background:#f5f7fa;padding:25px;max-width:500px;margin:0 auto}
@@ -12,7 +12,9 @@ body{background:#f5f7fa;padding:25px;max-width:500px;margin:0 auto}
 .input-box{margin-bottom:20px}
 label{display:block;margin-bottom:8px;color:#444}
 input{width:100%;padding:15px;border:1px solid #e1e4e8;border-radius:14px;font-size:16px;outline:none}
-button{width:100%;padding:15px;background:#007aff;color:#fff;border:none;border-radius:14px;font-size:16px;margin-top:8px}
+button{width:100%;padding:15px;color:#fff;border:none;border-radius:14px;font-size:16px;margin-top:8px}
+.btn-blue{background:#007aff}
+.btn-green{background:#28a745;margin-top:12px}
 .result{margin-top:22px;padding:20px;background:#f9f9f9;border-radius:14px;display:none}
 .result.show{display:block}
 .line{margin:10px 0}
@@ -22,17 +24,22 @@ button{width:100%;padding:15px;background:#007aff;color:#fff;border:none;border-
 </head>
 <body>
 <div class="main">
-  <h2 class="title">📦 快递单号查询</h2>
+  <h2 class="title">📦 快递查询 + 物流跟踪</h2>
+  
   <div class="input-box">
     <label>输入收件人手机号</label>
     <input type="tel" id="phone" placeholder="11位手机号码" maxlength="11">
   </div>
-  <button id="search">立即查询</button>
+
+  <button class="btn-blue" id="search">查询快递单号</button>
+  <button class="btn-green" id="checkWuliu" style="display:none">查看中通物流信息</button>
+
   <div class="result" id="result">
     <div class="line">手机号：<span id="rtel"></span></div>
     <div class="line">快递公司：<span id="rexp"></span></div>
     <div class="line">快递单号：<span id="rno"></span></div>
   </div>
+
   <div class="no" id="nope">未查询到该手机号</div>
 </div>
 
@@ -40,21 +47,33 @@ button{width:100%;padding:15px;background:#007aff;color:#fff;border:none;border-
 <script>
 const phone = document.getElementById('phone');
 const search = document.getElementById('search');
+const checkWuliu = document.getElementById('checkWuliu');
 const result = document.getElementById('result');
 const nope = document.getElementById('nope');
+let currentNo = '';
 
 search.onclick = () => {
   const tel = phone.value.trim();
   result.classList.remove('show');
   nope.classList.remove('show');
+  checkWuliu.style.display = 'none';
+  
   if (DATA[tel]) {
     document.getElementById('rtel').innerText = tel;
     document.getElementById('rexp').innerText = DATA[tel].express;
     document.getElementById('rno').innerText = DATA[tel].number;
+    currentNo = DATA[tel].number;
     result.classList.add('show');
+    checkWuliu.style.display = 'block';
   } else {
     nope.classList.add('show');
   }
+};
+
+// 一键跳中通官网查物流
+checkWuliu.onclick = () => {
+  if (!currentNo) return alert('请先查询快递单号');
+  window.open(`https://www.zto.com/result?billNum=${currentNo}`, '_blank');
 };
 </script>
 </body>
