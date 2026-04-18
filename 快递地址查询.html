@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快递查询</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+body{background:#f6f7f9;padding:20px;max-width:500px;margin:0 auto}
+.card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.title{text-align:center;margin-bottom:24px;font-size:20px;color:#222}
+.input-box{margin-bottom:16px}
+label{display:block;margin-bottom:8px;color:#444;font-size:14px}
+input{width:100%;padding:14px 16px;border:1px solid #ddd;border-radius:12px;font-size:16px}
+button{width:100%;padding:14px;background:#007bff;color:white;border:none;border-radius:12px;font-size:16px;margin-top:8px}
+button:active{background:#0066cc}
+.result{margin-top:20px;padding:16px;background:#f8f9fa;border-radius:12px;display:none}
+.result.show{display:block}
+.result p{margin:8px 0;color:#333}
+.no-result{color:red;text-align:center;margin-top:16px;display:none}
+.no-result.show{display:block}
+.upload{border:2px dashed #ddd;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;cursor:pointer}
+.upload:hover{border-color:#007bff}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2 class="title">📦 快递单号查询</h2>
+
+  <div class="upload" id="uploadArea">
+    <p>📁 点击上传 Excel 表格</p>
+    <input type="file" id="file" accept=".xlsx,.xls" hidden>
+  </div>
+
+  <div class="input-box">
+    <label>输入收件人手机号</label>
+    <input type="tel" id="phone" placeholder="请输入11位手机号" maxlength="11">
+  </div>
+
+  <button id="search">立即查询</button>
+
+  <div class="result" id="result">
+    <p>手机号：<span id="p"></span></p>
+    <p>快递公司：<span id="e"></span></p>
+    <p>快递单号：<span id="n"></span></p>
+  </div>
+
+  <div class="no-result" id="noResult">未查询到该手机号</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+let dataMap = {};
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('file');
+const phone = document.getElementById('phone');
+const search = document.getElementById('search');
+const result = document.getElementById('result');
+const noResult = document.getElementById('noResult');
+
+uploadArea.onclick = () => fileInput.click();
+
+fileInput.onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const wb = XLSX.read(ev.target.result, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(ws);
+    dataMap = {};
+    json.forEach(row => {
+      const tel = String(row['收件人联系方式'] || '').trim();
+      const no = String(row['快递单号'] || '').split('.')[0];
+      const ex = row['快递'] || '中通';
+      if (tel.length === 11) dataMap[tel] = { express: ex, number: no };
+    });
+    alert('上传成功！共 ' + Object.keys(dataMap).length + ' 条数据');
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+search.onclick = () => {
+  const tel = phone.value.trim();
+  result.classList.remove('show');
+  noResult.classList.remove('show');
+  if (dataMap[tel]) {
+    document.getElementById('p').innerText = tel;
+    document.getElementById('e').innerText = dataMap[tel].express;
+    document.getElementById('n').innerText = dataMap[tel].number;
+    result.classList.add('show');
+  } else {
+    noResult.classList.add('show');
+  }
+};
+</script>
+</body>
+</html>
